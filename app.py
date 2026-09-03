@@ -7,8 +7,38 @@ import pdfplumber
 import streamlit as st
 from openai import OpenAI
 
-st.set_page_config(page_title="AutoExtract B2B", layout="wide")
-st.title("📄 AutoExtract B2B - Procesador de Facturas (Texto y Escaneadas)")
+st.set_page_config(page_title="AutoExtract", layout="wide")
+st.title("📄 AutoExtract - Procesador de Facturas (Texto y Escaneadas)")
+
+# --- SISTEMA DE AUTENTICACIÓN ---
+def check_password():
+    """Verifica si el usuario ha introducido la contraseña correcta."""
+    if "authenticated" not in st.session_state:
+        st.session_state["authenticated"] = False
+
+    if not st.session_state["authenticated"]:
+        st.title("🔒 AutoExtract - Acceso Clientes")
+        user_password = st.text_input("Introduce tu clave de acceso:", type="password")
+        if st.button("Entrar"):
+            # Compara la contraseña con la guardada en Secrets
+            correct_password = st.secrets.get("CLIENT_PASSWORD", "cliente1")
+            if user_password == correct_password:
+                st.session_state["authenticated"] = True
+                st.rerun()
+            else:
+                st.error("🔑 Clave incorrecta. Contacta con soporte.")
+        return False
+    return True
+
+if not check_password():
+    st.stop()  # Detiene la ejecución si no ha puesto la contraseña
+# ---------------------------------
+
+# Recuperar la API Key directamente de la nube
+api_key = st.secrets.get("OPENAI_API_KEY")
+
+st.title("📄 AutoExtract - Procesador de Facturas")
+st.success("Sesión iniciada correctamente")
 
 st.sidebar.header("Configuración")
 api_key = st.sidebar.text_input("OpenAI API Key (sk-...)", type="password")
