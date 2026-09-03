@@ -8,7 +8,7 @@ import streamlit as st
 from openai import OpenAI
 
 st.set_page_config(page_title="AutoExtract", layout="wide")
-st.title("📄 AutoExtract - Procesador de Facturas (Texto y Escaneadas)")
+st.title("📄 AutoExtract - Procesador de Facturas")
 
 # --- SISTEMA DE AUTENTICACIÓN ---
 def check_password():
