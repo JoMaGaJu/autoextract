@@ -192,6 +192,42 @@ if uploaded_files and api_key:
           errors.append({"archivo": file.name, "motivo": str(e)})
 
     if results:
+        # --- LÓGICA DE CÁLCULO Y LIMPIEZA AUTOMÁTICA DE DATOS ---
+        for factura in results:
+            # Convertir/asegurar valores numéricos
+            try:
+                total = float(factura.get("total") or 0)
+            except (ValueError, TypeError):
+                total = 0.0
+
+            try:
+                base = float(factura.get("base_imponible") or 0)
+            except (ValueError, TypeError):
+                base = 0.0
+
+            try:
+                iva = float(factura.get("iva") or 0)
+            except (ValueError, TypeError):
+                iva = 0.0
+
+            # Si hay un total positivo pero falta la base o el IVA (asumimos 21% IVA en España)
+            if total > 0 and (base == 0 or iva == 0):
+                base = round(total / 1.21, 2)
+                iva = round(total - base, 2)
+                factura["base_imponible"] = base
+                factura["iva"] = iva
+
+            # Si no había total pero sí base e IVA, aseguramos el cálculo del total
+            elif total == 0 and (base > 0 or iva > 0):
+                total = round(base + iva, 2)
+                factura["total"] = total
+
+            # Limpieza visual del CIF/NIF si el documento carece de él
+            cif = str(factura.get("cif_emisor") or "").strip()
+            if not cif or cif.upper() in ["N/A", "NONE", "NULL", "0"]:
+                factura["cif_emisor"] = "Sin CIF / No consta"
+
+        # --- CONSTRUCCIÓN DEL DATAFRAME ---
         df = pd.DataFrame(results)
         cols = [
             "archivo",
@@ -204,7 +240,7 @@ if uploaded_files and api_key:
         ]
         df = df[[c for c in cols if c in df.columns]]
 
-        # 1. Tarjetas de métricas (KPIs) arriba
+        # --- 1. TARJETAS DE MÉTRICAS (KPIs) ---
         st.subheader("📊 Resumen del Procesamiento")
         col1, col2, col3 = st.columns(3)
 
@@ -218,11 +254,11 @@ if uploaded_files and api_key:
 
         st.divider()
 
-        # 2. Tabla de datos debajo de las métricas
+        # --- 2. TABLA DE DATOS ---
         st.subheader("📋 Detalle de Documentos")
         st.dataframe(df, use_container_width=True, hide_index=True)
 
-        # 3. Botón de descarga al final
+        # --- 3. BOTÓN DE DESCARGA EN EXCEL ---
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine="openpyxl") as writer:
             df.to_excel(writer, index=False, sheet_name="Facturas")
