@@ -8,7 +8,7 @@ import streamlit as st
 from openai import OpenAI
 
 st.set_page_config(page_title="AutoExtract", layout="wide")
-st.title("📄 AutoExtract - Procesador de Facturas (Texto y Escaneadas)")
+st.title("📄 AutoExtract - Procesador de Facturas")
 
 
 # --- ESTILOS CSS PERSONALIZADOS ---
@@ -242,15 +242,17 @@ if uploaded_files and api_key:
 
         # --- 1. TARJETAS DE MÉTRICAS (KPIs) ---
         st.subheader("📊 Resumen del Procesamiento")
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
 
         total_docs = len(df)
         suma_bases = df["base_imponible"].sum() if "base_imponible" in df else 0
+        suma_ivas = df["iva"].sum() if "iva" in df else 0
         suma_totales = df["total"].sum() if "total" in df else 0
 
         col1.metric("Facturas Procesadas", f"{total_docs} uds")
-        col2.metric("Base Imponible Total", f"{suma_bases:,.2f} €")
-        col3.metric("Importe Total Batch", f"{suma_totales:,.2f} €")
+        col2.metric("Base Imponible", f"{suma_bases:,.2f} €")
+        col3.metric("Total IVA", f"{suma_ivas:,.2f} €")
+        col4.metric("Importe Total", f"{suma_totales:,.2f} €")
 
         st.divider()
 
