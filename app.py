@@ -8,7 +8,45 @@ import streamlit as st
 from openai import OpenAI
 
 st.set_page_config(page_title="AutoExtract", layout="wide")
-st.title("📄 AutoExtract - Procesador de Facturas")
+st.title("📄 AutoExtract - Procesador de Facturas (Texto y Escaneadas)")
+
+
+# --- ESTILOS CSS PERSONALIZADOS ---
+st.markdown(
+    """
+    <style>
+    /* Ocultar elementos nativos de Streamlit */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+
+    /* Contenedores y botones */
+    .stButton>button {
+        width: 100%;
+        background-color: #2563eb;
+        color: white;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        border: none;
+    }
+    .stButton>button:hover {
+        background-color: #1d4ed8;
+        color: white;
+    }
+    .metric-card {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    </style>
+""",
+    unsafe_allow_html=True,
+)
+
 
 # --- SISTEMA DE AUTENTICACIÓN ---
 def check_password():
@@ -154,32 +192,49 @@ if uploaded_files and api_key:
           errors.append({"archivo": file.name, "motivo": str(e)})
 
     if results:
-      st.subheader("📊 Datos Extraídos")
-      df = pd.DataFrame(results)
-      cols = [
-          "archivo",
-          "proveedor",
-          "cif_emisor",
-          "fecha",
-          "base_imponible",
-          "iva",
-          "total",
-      ]
-      df = df[[c for c in cols if c in df.columns]]
-      st.dataframe(df, use_container_width=True)
+        df = pd.DataFrame(results)
+        cols = [
+            "archivo",
+            "proveedor",
+            "cif_emisor",
+            "fecha",
+            "base_imponible",
+            "iva",
+            "total",
+        ]
+        df = df[[c for c in cols if c in df.columns]]
 
-      output = io.BytesIO()
-      with pd.ExcelWriter(output, engine="openpyxl") as writer:
-        df.to_excel(writer, index=False, sheet_name="Facturas")
+        # 1. Tarjetas de métricas (KPIs) arriba
+        st.subheader("📊 Resumen del Procesamiento")
+        col1, col2, col3 = st.columns(3)
 
-      st.download_button(
-          label="📥 Descargar Resultado en Excel (.xlsx)",
-          data=output.getvalue(),
-          file_name="facturas_procesadas.xlsx",
-          mime=(
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-          ),
-      )
+        total_docs = len(df)
+        suma_bases = df["base_imponible"].sum() if "base_imponible" in df else 0
+        suma_totales = df["total"].sum() if "total" in df else 0
+
+        col1.metric("Facturas Procesadas", f"{total_docs} uds")
+        col2.metric("Base Imponible Total", f"{suma_bases:,.2f} €")
+        col3.metric("Importe Total Batch", f"{suma_totales:,.2f} €")
+
+        st.divider()
+
+        # 2. Tabla de datos debajo de las métricas
+        st.subheader("📋 Detalle de Documentos")
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+        # 3. Botón de descarga al final
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine="openpyxl") as writer:
+            df.to_excel(writer, index=False, sheet_name="Facturas")
+
+        st.download_button(
+            label="📥 Descargar Reporte Completo en Excel (.xlsx)",
+            data=output.getvalue(),
+            file_name="facturas_procesadas.xlsx",
+            mime=(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            ),
+        )
 
     if errors:
       st.warning("⚠️ Documentos con errores:")
