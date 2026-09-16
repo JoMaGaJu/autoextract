@@ -72,21 +72,42 @@ if not check_password():
     st.stop()  # Detiene la ejecución si no ha puesto la contraseña
 # ---------------------------------
 
-# Recuperar la API Key directamente de la nube
+# 1. Recuperar la API Key de la nube e inicializar el cliente de OpenAI
 api_key = st.secrets.get("OPENAI_API_KEY")
 
+if not api_key:
+  st.error(
+      "⚠️ Error de configuración: No se encontró 'OPENAI_API_KEY' en los"
+      " Secrets de Streamlit Cloud."
+  )
+  st.stop()
+
+client = OpenAI(api_key=api_key)
+
+# 2. Título y mensaje principal
 st.title("📄 AutoExtract - Procesador de Facturas")
 st.success("Sesión iniciada correctamente")
 
-st.sidebar.header("Configuración")
-api_key = st.sidebar.text_input("OpenAI API Key (sk-...)", type="password")
+# 3. Sidebar informativo (sin campo para la API Key)
+with st.sidebar:
+  st.header("⚙️ Estado del Servicio")
+  st.success("🟢 Conexión segura activa")
+  st.divider()
+  st.markdown("**Guía rápida:**")
+  st.markdown("""
+    1. Arrastra o selecciona tus facturas en PDF.
+    2. La IA extraerá los datos y calculará los impuestos.
+    3. Exporta el resumen directamente a Excel.
+    """)
+  st.divider()
+  st.caption("AutoExtract B2B v1.0 • Sistema Automatizado")
 
+# 4. Cargador de archivos
 uploaded_files = st.file_uploader(
     "Arrastra o selecciona facturas en PDF",
     type=["pdf"],
     accept_multiple_files=True,
 )
-
 
 def extract_text_from_pdf(pdf_file):
   """Intenta extraer texto de un PDF nativo."""
