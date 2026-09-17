@@ -23,6 +23,10 @@ st.markdown(
     [data-testid="stSidebar"] { display: none !important; }
     [data-testid="stSidebarCollapsedControl"] { display: none !important; }
 
+    /* Ocultar los enlaces de ancla en títulos y encabezados */
+    [data-testid="stHeaderActionElements"], a.anchor-link {
+    display: none !important;
+
     /* Contenedores y botones */
     .stButton>button {
         width: 100%;
