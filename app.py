@@ -15,10 +15,9 @@ st.title("📄 AutoExtract - Procesador de Facturas")
 st.markdown(
     """
     <style>
-    /* Ocultar elementos nativos de Streamlit */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+    /* Ocultar elementos nativos de Streamlit (manteniendo activo el botón del sidebar) */
+    [data-testid="stToolbar"] { visibility: hidden !important; }
+    footer { visibility: hidden !important; }
 
     /* Contenedores y botones */
     .stButton>button {
