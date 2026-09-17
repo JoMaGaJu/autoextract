@@ -49,26 +49,35 @@ st.markdown(
 
 # --- SISTEMA DE AUTENTICACIÓN ---
 def check_password():
-    """Verifica si el usuario ha introducido la contraseña correcta."""
-    if "authenticated" not in st.session_state:
-        st.session_state["authenticated"] = False
+  """Verifica si el usuario ha introducido la contraseña correcta."""
+  if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
 
-    if not st.session_state["authenticated"]:
-        st.title("🔒 AutoExtract - Acceso Clientes")
-        user_password = st.text_input("Introduce tu clave de acceso:", type="password")
-        if st.button("Entrar"):
-            # Compara la contraseña con la guardada en Secrets
-            correct_password = st.secrets.get("CLIENT_PASSWORD", "cliente1")
-            if user_password == correct_password:
-                st.session_state["authenticated"] = True
-                st.rerun()
-            else:
-                st.error("🔑 Clave incorrecta. Contacta con soporte.")
-        return False
-    return True
+  if not st.session_state["authenticated"]:
+    st.title("🔒 AutoExtract - Acceso Clientes")
+
+    # Formulario para vincular la tecla Enter con la validación
+    with st.form("login_form"):
+      user_password = st.text_input(
+          "Introduce tu clave de acceso:", type="password"
+      )
+      submit_button = st.form_submit_button("Entrar")
+
+      if submit_button:
+        # Compara la contraseña con la guardada en Secrets
+        correct_password = st.secrets.get("CLIENT_PASSWORD", "cliente1")
+        if user_password == correct_password:
+          st.session_state["authenticated"] = True
+          st.rerun()
+        else:
+          st.error("🔑 Clave incorrecta. Contacta con soporte.")
+
+    return False
+  return True
+
 
 if not check_password():
-    st.stop()  # Detiene la ejecución si no ha puesto la contraseña
+  st.stop()  # Detiene la ejecución si no ha puesto la contraseña
 # ---------------------------------
 
 # 1. Recuperar la API Key de la nube e inicializar el cliente de OpenAI
