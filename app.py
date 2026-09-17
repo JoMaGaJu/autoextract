@@ -11,13 +11,19 @@ st.set_page_config(page_title="AutoExtract", layout="wide")
 st.title("📄 AutoExtract - Procesador de Facturas")
 
 
-# --- ESTILOS CSS PERSONALIZADOS ---
+# --- ESTILOS CSS PERSONALIZADOS (OPCIÓN 2: PLEGABLE) ---
 st.markdown(
     """
     <style>
-    /* Ocultar elementos nativos de Streamlit (manteniendo activo el botón del sidebar) */
+    /* Ocultar menú superior y pie de página */
     [data-testid="stToolbar"] { visibility: hidden !important; }
     footer { visibility: hidden !important; }
+
+    /* Forzar visibilidad del botón para reabrir la barra al colapsar */
+    [data-testid="stSidebarCollapsedControl"] {
+        visibility: visible !important;
+        display: block !important;
+    }
 
     /* Contenedores y botones */
     .stButton>button {
