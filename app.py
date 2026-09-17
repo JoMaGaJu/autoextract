@@ -11,7 +11,7 @@ st.set_page_config(page_title="AutoExtract", layout="wide")
 st.title("📄 AutoExtract - Procesador de Facturas")
 
 
-# --- ESTILOS CSS PERSONALIZADOS (OPCIÓN 2: PLEGABLE) ---
+# --- ESTILOS CSS PERSONALIZADOS (SIN BARRA LATERAL) ---
 st.markdown(
     """
     <style>
@@ -19,11 +19,9 @@ st.markdown(
     [data-testid="stToolbar"] { visibility: hidden !important; }
     footer { visibility: hidden !important; }
 
-    /* Forzar visibilidad del botón para reabrir la barra al colapsar */
-    [data-testid="stSidebarCollapsedControl"] {
-        visibility: visible !important;
-        display: block !important;
-    }
+    /* Ocultar totalmente la barra lateral y su icono de apertura */
+    [data-testid="stSidebar"] { display: none !important; }
+    [data-testid="stSidebarCollapsedControl"] { display: none !important; }
 
     /* Contenedores y botones */
     .stButton>button {
