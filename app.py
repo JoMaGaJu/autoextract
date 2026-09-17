@@ -93,7 +93,7 @@ if not api_key:
 client = OpenAI(api_key=api_key)
 
 # 2. Título y mensaje principal
-st.title("📄 AutoExtract - Procesador de Facturas")
+st.title("📄 Facturas de Gestoria Demo")
 st.success("Sesión iniciada correctamente")
 
 # 3. Sidebar informativo (sin campo para la API Key)
