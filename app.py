@@ -54,7 +54,7 @@ def check_password():
     st.session_state["authenticated"] = False
 
   if not st.session_state["authenticated"]:
-    st.title("🔒 AutoExtract - Acceso Clientes")
+    st.title("🔒 Acceso Clientes")
 
     # Formulario para vincular la tecla Enter con la validación
     with st.form("login_form"):
